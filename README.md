@@ -1,17 +1,25 @@
-# Medical QLoRA Finetuning
+# Medical QLoRA Fine-tuning
 
-This project fine-tunes a large language model (LLaMA-3) for medical Q&A using QLoRA with [Unsloth](https://github.com/unslothai/unsloth) in Google Colab.
+Fine-tuning Llama-3.1 8B Instruct for medical multiple-choice questions with QLoRA, using [Unsloth](https://github.com/unslothai/unsloth) on a free Colab GPU.
 
-## 🚀 Features
-- Fine-tunes LLaMA-3 efficiently with QLoRA
-- Uses Unsloth for lightweight training
-- Designed for medical question answering tasks
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/salmanmalikme11/medical-qlora-finetuning/blob/main/Medical_QLoRA_Finetuning_Colab.ipynb)
 
-## 📂 Project Structure
-- `Medical_QLoRA_Finetuning_Colab.ipynb` → Main Colab notebook
-- `README.md` → Project documentation
+## What it does
 
-## ⚙️ Setup
-Open in Google Colab:
-```bash
-git clone https://github.com/salmanmalikme11/medical-qlora-finetuning.git
+- Loads [MedMCQA](https://huggingface.co/datasets/openlifescienceai/medmcqa), a set of real questions from Indian medical entrance exams
+- Measures the base model's accuracy on 500 validation questions
+- Fine-tunes a 4-bit Llama-3.1 8B with LoRA adapters on 5,000 training questions
+- Measures accuracy again on the same 500 questions and saves the adapter
+
+## Approach
+
+- **Model:** `unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit`, LoRA rank 16 on all attention and MLP projections
+- **Prompt format:** Llama-3 chat template via `tokenizer.apply_chat_template`. The model answers with one letter (A-D).
+- **Loss:** computed only on the answer token (`train_on_responses_only`), not on the question
+- **Evaluation:** compares the logits of `A`/`B`/`C`/`D` at the answer position, so the score doesn't depend on parsing generated text
+
+## Running it
+
+Open the notebook in Colab, choose a GPU runtime (a T4 is enough) and run all cells. Training takes about 20-25 minutes.
+
+To train on more data, change `N_TRAIN` in the config cell.
